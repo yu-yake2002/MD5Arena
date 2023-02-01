@@ -1,6 +1,5 @@
-#include "MD5.h"
-
 #include <memory.h>
+#include <MD5.h>
 
 unsigned char PADDING[] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                            0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

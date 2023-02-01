@@ -10,7 +10,7 @@ typedef struct {
   int property[9]; // Basic properties
   int kill_cnt, damage;
   char name[NAME_LENGTH + 1]; // Name
-  unsigned char md5[16];
+  char md5[16];
   bool valid;
   bool alive;
 } Player;

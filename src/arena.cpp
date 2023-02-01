@@ -1,10 +1,10 @@
-#include "arena.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static char *propertyArr[] = {"HP",  "ATT", "DEF", "SPD", "DEX",
+#include <arena.h>
+
+static const char *propertyArr[] = {"HP",  "ATT", "DEF", "SPD", "DEX",
                               "MAG", "RES", "LER", NULL};
 
 #define NR_PLAYERS 10
@@ -43,6 +43,7 @@ void FillPlayerProperty(Player *player, char *name, unsigned char *md5) {
     player->valid = true;
     player->alive = true;
     player->kill_cnt = 0;
+    player->damage = 0;
     strncpy(player->name, name, NAME_LENGTH);
     player->property[HP] = 200 + md5[0];
     for (int i = 1; i < 8; ++i) {
@@ -91,11 +92,11 @@ static int GetMaxNameLength() {
 
 void PrintPlayerInfo(Player *player) {
   int maxlen = GetMaxNameLength();
-  printf("%*s: ", maxlen, player->name);
+  fprintf(stderr, "%*s: ", maxlen, player->name);
   for (int i = 0; i < 8; ++i) {
-    printf("%s %d ", propertyArr[i], player->property[i]);
+    fprintf(stderr, "%s %d ", propertyArr[i], player->property[i]);
   }
-  printf("\n");
+  fprintf(stderr, "\n");
 }
 
 static void PrintResult() {
@@ -172,6 +173,7 @@ static Player *SelectEnemy(Player *att) {
   for (i = 0; i < NR_PLAYERS; ++i) {
     if (players + i != att && players[i].alive && players[i].valid) {
       ret = players + i;
+      break;
     }
   }
   for (; i < NR_PLAYERS; ++i) {

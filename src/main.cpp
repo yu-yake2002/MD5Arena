@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "MD5.h"
-#include "arena.h"
+#include <MD5.h>
+#include <arena.h>
+#include <cliterm.h>
 
-static void readlinen(char *buffer, size_t length);
+static char *readlinen();
 
 static int cmd_help(char *args);
 static int cmd_add(char *args);
@@ -30,11 +32,17 @@ static struct {
 #define NR_CMD ARRLEN(cmd_table)
 
 int main() {
+  printf(
+    "------------ MD5Arena, V1.0 ------------\n"
+    "This game is inspired by MD5War, a Flash\n"
+    "game utilizing MD5 encryption. Add names\n"
+    "to the arena, and their MD5 values will \n"
+    "decide the result.\n"
+    "----------------------------------------\n");
   InitGame();
-  char buffer[NAME_LENGTH + 8];
   while (1) {
-    printf("(MD5-Arena) ");
-    readlinen(buffer, NAME_LENGTH + 7);
+    fprintf(stderr, "(MD5-Arena) ");
+    char *buffer = readlinen();
     char *buffer_end = buffer + strlen(buffer);
     char *cmd = strtok(buffer, " ");
     if (cmd == NULL) {
@@ -55,26 +63,26 @@ int main() {
       }
     }
     if (i == NR_CMD) {
-      printf("Unknown command '%s'\n", cmd);
+      fprintf(stderr, "Unknown command '%s'\n", cmd);
     }
   }
   return 0;
 }
 
-static void readlinen(char *buffer, size_t length) {
-  char c;
-  for (int i = 0; i < length; ++i) {
-    c = getchar();
-    if ('\n' == c || '\r' == c) {
-      buffer[i] = '\0';
-      return;
-    } else {
-      buffer[i] = c;
+Terminal term;
+
+static char *readlinen() {
+  term.inp_len = 0;
+  term.input[0] = '\0';
+  char buf[2];
+  while (1) {
+    int read_ret = read(0, buf, 1);
+    if (read_ret != -1 && read_ret != 0) {
+      char *res = term.keypress(buf[0]);
+      if (res) {
+        return res;
+      }
     }
-  }
-  buffer[length] = '\0';
-  while (c != '\n' && c != '\r') {
-    c = getchar();
   }
 }
 
@@ -131,7 +139,7 @@ static int cmd_start(char *args) {
     printf("Error: The number of names should more than 1. Now the number is %d.\n", CountAlive());
   } else {
     PrintAllPlayerInfo();
-    printf("------ Start! ------\n");
+    printf("---------------- Start! ----------------\n");
     srand(114514);
     StartGame();
   }
