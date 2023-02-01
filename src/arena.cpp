@@ -199,7 +199,7 @@ static void Attack(Player *src, Player *dst) {
   printf("%s attacked %s, ", src->name, dst->name);
   int damage = 0;
   bool miss =
-      ((rand() % 100) > src->property[DEX] + (src->property[ATT] >> 3)) &&
+      ((rand() % 100) > src->property[DEX] + (src->property[ATT] >> 3)) ||
       ((rand() % 100) < (dst->property[DEX] >> 2) + (dst->property[ATT] >> 4));
   if (miss) {
     printf("%s avoid the attack.\n", dst->name);
