@@ -1,14 +1,12 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include <MD5.h>
 #include <arena.h>
 #include <cliterm.h>
+#include <player.h>
 
-static char *readlinen();
-
+static Terminal term;
 static int cmd_help(char *args);
 static int cmd_add(char *args);
 static int cmd_rm(char *args);
@@ -39,10 +37,10 @@ int main() {
     "to the arena, and their MD5 values will \n"
     "decide the result.\n"
     "----------------------------------------\n");
-  InitGame();
+  InitArena();
   while (1) {
     fprintf(stderr, "(MD5-Arena) ");
-    char *buffer = readlinen();
+    char *buffer = TermReadLine(&term);
     char *buffer_end = buffer + strlen(buffer);
     char *cmd = strtok(buffer, " ");
     if (cmd == NULL) {
@@ -53,37 +51,22 @@ int main() {
       args = NULL;
     }
 
-    int i;
+    int i, ret = 0;
     for (i = 0; i < NR_CMD; ++i) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
-        if (cmd_table[i].handler(args) < 0) { 
-          return 0;
-        }
+        ret = cmd_table[i].handler(args);
         break;
       }
     }
     if (i == NR_CMD) {
-      fprintf(stderr, "Unknown command '%s'\n", cmd);
+      printf("Unknown command '%s'\n", cmd);
+    }
+    if (ret < 0) {
+      break;
     }
   }
+  QuitArena();
   return 0;
-}
-
-Terminal term;
-
-static char *readlinen() {
-  term.inp_len = 0;
-  term.input[0] = '\0';
-  char buf[2];
-  while (1) {
-    int read_ret = read(0, buf, 1);
-    if (read_ret != -1 && read_ret != 0) {
-      char *res = term.keypress(buf[0]);
-      if (res) {
-        return res;
-      }
-    }
-  }
 }
 
 static int cmd_help(char *args) {
@@ -109,14 +92,22 @@ static int cmd_help(char *args) {
 }
 
 static int cmd_add(char *name) {
+  if (FindPlayer(name)) {
+    printf("Error: %s exists!\n", name);
+    return 0;
+  }
+  /* calculate md5 value */
   MD5_CTX md5c;
   MD5Init(&md5c);
   MD5Update(&md5c, (unsigned char *)name, strlen(name));
   unsigned char result[16] = {0};
   MD5Final(&md5c, result);
+  /* alloc a player from the pool */
   Player *player = AllocPlayer();
   if (player) {
-    FillPlayerProperty(player, name, result);
+    ConstructPlayer(player, name, result);
+  } else {
+    printf("Error: Too many players!\n");
   }
   return player == NULL;
 }
@@ -124,7 +115,9 @@ static int cmd_add(char *name) {
 static int cmd_rm(char *name) {
   Player *player = FindPlayer(name);
   if (player) {
-    DeletePlayerProperty(player);
+    DestructPlayer(player);
+  } else {
+    printf("Error: Player %s doesn't exist!\n", name);
   }
   return player == NULL;
 }
@@ -136,14 +129,16 @@ static int cmd_ls(char *args) {
 
 static int cmd_start(char *args) {
   if (CountAlive() < 2) {
-    printf("Error: The number of names should more than 1. Now the number is %d.\n", CountAlive());
+    printf(
+        "Error: The number of names should more than 1. "
+        "Now the number is %d.\n", CountAlive());
   } else {
     PrintAllPlayerInfo();
     printf("---------------- Start! ----------------\n");
-    srand(114514);
-    StartGame();
+    StartGameLoop();
+    PrintResult();
+    NewGame();
   }
-  InitGame();
   return 0;
 }
 

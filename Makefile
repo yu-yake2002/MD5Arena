@@ -1,10 +1,10 @@
 NAME = MD5Arena
-SRCS = $(shell find src/ -name "*.cpp")
+SRCS = $(shell find src/ -name "*.c")
 
 ifeq ($(wildcard $(NAVY_HOME)/apps/am-kernels/Makefile),)
 TARGET = ./build/MD5Arena
 $(TARGET):
-	g++ -I ./include $(SRCS) -o $(TARGET)
+	gcc -I ./include $(SRCS) -o $(TARGET)
 
 run: $(TARGET)
 	$(TARGET)

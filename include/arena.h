@@ -1,28 +1,33 @@
 #ifndef ARENA_H
 #define ARENA_H
+#include <player.h>
 #include <stdbool.h>
 
-enum {HP, ATT, DEF, SPD, DEX, MAG, RES, LER, NXATT};
+#define NR_PLAYERS 10
 
-#define NAME_LENGTH 32
+// Alloc memory for players.
+void InitArena();
+// Free memory for players.
+void QuitArena();
 
-typedef struct {
-  int property[9]; // Basic properties
-  int kill_cnt, damage;
-  char name[NAME_LENGTH + 1]; // Name
-  char md5[16];
-  bool valid;
-  bool alive;
-} Player;
+// Make all players invalid. Call it after each game.
+void NewGame();
 
-void InitGame();
+void StartGameLoop();
+
+// Return an invalid (unused) player's pointer.
+// When all players are occupied, return NULL.
 Player *AllocPlayer();
+// Return specified player's pointer.
+// When no player has the same name, return NULL.
 Player *FindPlayer(char *name);
-void FillPlayerProperty(Player *player, char *name, unsigned char *property);
-void DeletePlayerProperty(Player *player);
+
 void PrintAllPlayerName();
 void PrintAllPlayerInfo();
-void PrintPlayerInfo(Player *player);
+void PrintResult();
 int CountAlive();
-void StartGame();
+int GetMaxNameLength();
+
+Player *SelectByOrder(int key, bool select_min, const char *excp);
+
 #endif
