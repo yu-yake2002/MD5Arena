@@ -39,7 +39,8 @@ enum {
   CONQUEROR, 
   
   // I.2.4 Phase Rush. 相位猛冲
-  // A sucessful attack grants you 10 bonus speed before next attack. 
+  // 50% trigger posibility
+  // A sucessful attack grants you 20 bonus speed before next attack. 
   PHASE_RUSH,
 
   // I.2.5 Ultimate Hunter. 终极猎手

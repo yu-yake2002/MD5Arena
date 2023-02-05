@@ -137,8 +137,10 @@ static void AfterAttackHandler(Player *src, Player *dst, int damage, bool magic_
     printf("  %s used CONQUEROR, and healed %d HP.\n", src->name_, tmp);
     break;
   case PHASE_RUSH:
-    src->property_[NXATT] -= 10;
-    printf("  %s used PHASE RUSH, and got 10 bonus speed before next attack.\n", src->name_);
+    if (rand() & 0x1) {
+      src->property_[NXATT] -= 20;
+      printf("  %s used PHASE RUSH, and got 20 bonus speed before next attack.\n", src->name_);
+    }
     break;
   case ULTIMATE_HUNTER:
     if (!dst->alive_) {
