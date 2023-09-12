@@ -24,6 +24,7 @@ void QuitArena() {
 void NewGame() {
   for (int i = 0; i < NR_PLAYERS; ++i) {
     players_[i]->valid_ = false;
+    players_[i]->alive_ = false;
   }
 }
 

@@ -3,8 +3,8 @@ SRCS = $(shell find src/ -name "*.c")
 
 ifeq ($(wildcard $(NAVY_HOME)/apps/am-kernels/Makefile),)
 TARGET = ./build/MD5Arena
-$(TARGET):
-	mkdir ./build
+$(TARGET): $(SRCS)
+	mkdir -p ./build
 	gcc -I ./include $(SRCS) -g -o $(TARGET)
 
 run: $(TARGET)
